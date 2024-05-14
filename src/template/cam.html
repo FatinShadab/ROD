@@ -1,39 +1,132 @@
 {% extends 'main.html' %}
+{% load static %}
 
 {% block title %}
     R.O.D - CAM SETUP
 {% endblock %}
 
 {% block content %}
-    <section class="pt-5">
-        <form>
-            <div class="form-row align-items-center">
-              <div class="col-auto">
-                <label class="sr-only" for="inlineFormInput">Name</label>
-                <input type="text" class="form-control mb-2" id="inlineFormInput" placeholder="Jane Doe">
-              </div>
-              <div class="col-auto">
-                <label class="sr-only" for="inlineFormInputGroup">Username</label>
-                <div class="input-group mb-2">
-                  <div class="input-group-prepend">
-                    <div class="input-group-text">@</div>
-                  </div>
-                  <input type="text" class="form-control" id="inlineFormInputGroup" placeholder="Username">
+    <section class="pt-2">
+        <hr class="text-light">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-6 col-sm-12 px-2">
+                    <h4 class="text-light pb-1">Register Your IP Camera</h4>
+                    <form>
+                        <div class="form-row align-items-center">
+                            <div class="col-auto">
+                                <div class="input-group mb-2">
+                                    <div class="input-group-prepend">
+                                    <div class="input-group-text">@</div>
+                                    </div>
+                                    <input type="text" class="form-control" id="inlineFormInputGroup" placeholder="CAMERA NAME">
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <div class="d-flex py-2 px-0 mx-0 gap-3" style="margin-left: 0%;">
+                                    <input type="text" class="form-control mb-2" id="inlineFormInput" placeholder="IP (1xx.1xx.x.1xx)">
+                                    <input type="text" class="form-control mb-2" id="inlineFormInput" placeholder="PORT (xxxx)">
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="autoSizingCheck">
+                                <label class="form-check-label text-light" for="autoSizingCheck">
+                                    Select ?
+                                </label>
+                                </div>
+                            </div>
+                            <div class="col-auto text-end">
+                                <button type="submit" class="btn btn-primary mb-2">Register</button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
-              </div>
-              <div class="col-auto">
-                <div class="form-check mb-2">
-                  <input class="form-check-input" type="checkbox" id="autoSizingCheck">
-                  <label class="form-check-label" for="autoSizingCheck">
-                    Remember me
-                  </label>
+                <div class="col-md-6 col-sm-12 px-2">
+                    <h4 class="text-light pb-1">Registered IP Cameras</h4>
+                    <div class="overflow-auto" style="height: 200px;">
+                        <table class="table table-dark">
+                            <thead>
+                              <tr>
+                                <th scope="col">CAM</th>
+                                <th scope="col">CAM IP</th>
+                                <th scope="col">CAM PORT</th>
+                                <th scope="col">STATUS</th>
+                                <th scope="col">ACTION</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr>
+                                <td>Mark</td>
+                                <td>Otto</td>
+                                <td>@mdo</td>
+                                <td>Selected</td>
+                                <td><a href="">Test</a>/<a href="">Select</a></td>
+                              </tr>
+                              <tr>
+                                <td>Mark</td>
+                                <td>Otto</td>
+                                <td>@mdo</td>
+                                <td>Unselected</td>
+                                <td><a href="">Test</a>/<a href="">Select</a></td>
+                              </tr>
+                              <tr>
+                                <td>Mark</td>
+                                <td>Otto</td>
+                                <td>@mdo</td>
+                                <td>Unselected</td>
+                                <td><a href="">Test</a>/<a href="">Select</a></td>
+                              </tr>
+                              <tr>
+                                <td>Mark</td>
+                                <td>Otto</td>
+                                <td>@mdo</td>
+                                <td>Unselected</td>
+                                <td><a href="">Test</a>/<a href="">Select</a></td>
+                              </tr>
+                              <tr>
+                                <td>Mark</td>
+                                <td>Otto</td>
+                                <td>@mdo</td>
+                                <td>Unselected</td>
+                                <td><a href="">Test</a>/<a href="">Select</a></td>
+                              </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-              </div>
-              <div class="col-auto">
-                <button type="submit" class="btn btn-primary mb-2">Submit</button>
-              </div>
             </div>
-          </form>
-        <form>
+        </div>
+    </section>
+    
+    <section>
+        <hr class="text-light">
+        <div class="row" style="width: 100%;">
+            <div class="col-md-1"></div>
+            <div class="col-md-6 col-sm-12 sm-mb-5">
+                <img src="{% static '\asset\images\no_camera.jpg' %}" class="img-fluid rounded px-5 border border-5 border-secondary" alt="camera feed">
+            </div>
+            <div class="col-md-4 col-sm-12 pb-0">
+                <div class="card bg-secondary py-1">
+                    <div class="card-header text-center text-light">
+                        IP CAMERA TESTING
+                    </div>
+                    <div class="card-body text-light justify-content-center">
+                        <div class="row py-4">
+                            <div class="col-md-6 col-sm-4 py-3">
+                                <p>Camera Name : Camera</p>
+                                <p>Camera IP : 198.108.0.107</p>
+                                <p>Camera Port : 8080</p>
+                                <p>Camera Status : Good</p>
+                            </div>
+                            <div class="col-md-6 col-sm-8 py-3">
+                                <img src="{% static '\asset\images\testing.gif' %}" alt="">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-1"></div>
+        </div>
     </section>
 {% endblock content %}
