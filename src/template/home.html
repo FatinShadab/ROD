@@ -1,0 +1,74 @@
+{% extends 'main.html' %}
+{% load static %}
+
+{% block title %} R.O.D {% endblock title%}
+
+{% block content %}
+<section class="pt-2 bg-dark">
+  <hr class="text-light">
+    <header class="pt-2 container-fluid bg-dark text-light">
+        <div class="container">
+            <div class="row gx-5 align-items-center">
+                <!-- One-line Definition Column -->
+                <div class="col-lg-8 col-xl-7 col-xxl-6">
+                    <h1>R.O.D : Real-time Object Detection</h1>
+                    <hr class="text-light">
+                    <br>
+                    <h5 class="mb-0">Your real-time surveillance solution, empowering seamless object detection and monitoring.</h5>
+                </div>
+                <!-- Image Column -->
+                <div class="col-xl-5 col-xxl-6 d-none d-xl-block justify-content-end">
+                    <img src="{% static '\asset\images\header.gif' %}" alt="R.O.D Logo" class="ml-3 rounded shadow">
+                </div>
+            </div>
+        </div>
+    </header>
+</section>
+
+<section class="mt-0 mb-1 pb-1 pt-3 bg-dark">
+    <div class="container justify-content-center">
+        <hr class="text-light">
+        <div class="row gx-5 pb-2 mx-5 px-5">
+          <div class="py-2 col-md-4 col-sm-12 justify-content-center">
+            <a href="{% url 'camera_setup_view' %}" style="text-decoration: none;">
+              <div class="card text-center border border-5" style="width: 16rem;">
+                <div class="card-body">
+                  <!-- GIF Content -->
+                  <img src="{% static '\asset\images\dashboard.gif' %}" class="card-img-top" alt="GIF 1" height="150px" width="200px" >
+                </div>
+                <div class="card-footer">
+                  <h5 class="card-title">DASHBOARD</h5>
+                </div>
+              </div>
+            </a>
+          </div>
+          <div class="py-2 col-md-4 col-sm-12 justify-content-center">
+            <a href="{% url 'camera_setup_view' %}" style="text-decoration: none;">
+            <div class="card text-center border border-5" style="width: 16rem;">
+              <div class="card-body">
+                <!-- GIF Content -->
+                <img src="{% static '\asset\images\camera_setup.gif' %}" class="card-img-top" alt="GIF 1" height="150px" width="200px" >
+              </div>
+              <div class="card-footer">
+                <h5 class="card-title">SETUP CAMERA</h5>
+              </div>
+            </div>
+            </a>
+          </div>
+          <div class="py-2 col-md-4 col-sm-12 justify-content-center">
+            <a href="" style="text-decoration: none;">
+            <div class="card text-center border border-5" style="width: 16rem;">
+              <div class="card-body">
+                <!-- GIF Content -->
+                <img src="{% static '\asset\images\detect.gif' %}" class="card-img-top" alt="GIF 1" height="150px" width="200px">
+              </div>
+              <div class="card-footer">
+                <h5 class="card-title">MONITOR</h5>
+              </div>
+            </div>
+            </a>
+          </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}
