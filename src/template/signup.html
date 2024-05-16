@@ -6,12 +6,22 @@
 {% block content %}
 <section class="pt-2">
   <hr class="text-light">
-  <div class="mask d-flex align-items-center mt-5">
-    <div class="container py-3">
-      <div class="row d-flex justify-content-center align-items-center">
+  <div class="mask d-flex align-items-center">
+    <div class="container mt-2">
+      <div class="row d-flex justify-content-center align-items-center mt-2">
         <div class="col-12 col-md-9 col-lg-7 col-xl-6">
           <div class="card bg-secondary text-light" style="border-radius: 15px;">
             <div class="card-body px-5">
+              {% if messages %}
+              {% for message in messages %}
+                <div class="float-left alert alert-info alert-dismissible fade show m-2" role="alert">
+                  {{ message }}
+                  <button type="button" class="close btn-close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true"></span>
+                  </button>
+                </div>
+              {% endfor %}
+            {% endif %}
               <h2 class="text-uppercase text-center mb-3">
                 Create an account
                 <svg xmlns="http://www.w3.org/2000/svg" width="38" height="38" fill="currentColor" class="bi bi-person-rolodex mx-2" viewBox="0 0 16 16">
@@ -21,22 +31,23 @@
               </h2>
               <hr class="text-light">
 
-              <form class="mt-2">
-
+              <form method="post" class="mt-2" id="signupForm">
+                {% csrf_token %}
+                
                 <div data-mdb-input-init class="form-outline mb-4">
-                  <input type="text" id="form3Example1cg" class="form-control form-control-lg" placeholder="Your Name"/>
+                  {{ form.username }}
                 </div>
 
                 <div data-mdb-input-init class="form-outline mb-4">
-                  <input type="email" id="form3Example3cg" class="form-control form-control-lg" placeholder="Your Email"/>
+                  {{ form.email }}
                 </div>
 
                 <div data-mdb-input-init class="form-outline mb-4">
-                  <input type="password" id="form3Example4cg" class="form-control form-control-lg" placeholder="Password"/>
+                  {{ form.password1 }}
                 </div>
 
                 <div data-mdb-input-init class="form-outline mb-4">
-                  <input type="password" id="form3Example4cdg" class="form-control form-control-lg" placeholder="Re-enter Your Password"/>
+                  {{ form.password2 }}
                 </div>
 
                 <div class="form-check d-flex justify-content-center">
@@ -47,12 +58,12 @@
                 </div>
 
                 <div class="d-flex justify-content-center my-1">
-                  <button  type="button" data-mdb-button-init
-                    data-mdb-ripple-init class="btn btn-primary btn-block btn-lg text-light">Register</button>
+                  <button type="submit" data-mdb-button-init
+                    data-mdb-ripple-init class="btn btn-primary btn-block btn-lg text-light" id="registerButton" disabled="true">Register</button>
                 </div>
 
-                <p class="text-center text-muted mb-1">Have already an account? <a href="#!"
-                    class="fw-bold text-body"><u>Login here</u></a></p>
+                <p class="text-center text-muted mb-1">Have already an account? <a href="{% url 'login_view' %}"
+                    class="text-body"><u>Login here</u></a></p>
 
               </form>
 
@@ -64,3 +75,27 @@
   </div>
 </section>
 {% endblock content %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const form = document.getElementById('signupForm');
+    const registerButton = document.getElementById('registerButton');
+    const checkbox = document.getElementById('form2Example3cg');
+    
+    form.addEventListener('input', function() {
+      const allFieldsFilled = Array.from(form.querySelectorAll('input[type="text"], input[type="email"], input[type="password"]')).every(input => input.value.trim() !== '');
+      const checkboxChecked = checkbox.checked;
+      
+      registerButton.disabled = !(allFieldsFilled && checkboxChecked);
+    });
+
+    checkbox.addEventListener('change', function() {
+      const allFieldsFilled = Array.from(form.querySelectorAll('input[type="text"], input[type="email"], input[type="password"]')).every(input => input.value.trim() !== '');
+      const checkboxChecked = checkbox.checked;
+
+      registerButton.disabled = !(allFieldsFilled && checkboxChecked);
+    });
+  });
+</script>
+{% endblock extra_js %}
