@@ -129,8 +129,8 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 try:
-    with open('host_email_config.json', 'r') as f:
-        data = json.load(f)
+    with open(f"{BASE_DIR}\core\host_email_config.json", 'r') as f:
+        data = json.loads(f.read())
         EMAIL_HOST_USER = data["EMAIL_HOST_USER"]
         EMAIL_HOST_PASSWORD = data["EMAIL_HOST_PASSWORD"]
 except Exception as e:
