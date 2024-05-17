@@ -1,0 +1,4 @@
+{
+    "EMAIL_HOST_USER": "host@gmail.com",
+    "EMAIL_HOST_PASSWORD": "password"
+}
