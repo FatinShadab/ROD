@@ -1,0 +1,34 @@
+{% extends 'main.html' %}
+{% load static %}
+
+{% block title %} R.O.D - PASSREST COMPLETE {% endblock title %}
+
+{% block content %}
+<section class="pt-2"><hr class="text-light"></section>
+<section class="d-flex justify-content-center align-items-center" style="height: 50vh;">
+    <hr class="text-light">
+    <div class="card mb-3 bg-secondary text-light w-auto"> 
+        <div class="row g-0"> 
+            <div class="col-md-4"> 
+                <img src="{% static 'asset/images/reset_done.gif' %}" 
+                    class="img-fluid rounded-start" alt="..."> 
+            </div> 
+            <div class="col-md-8"> 
+                <div class="card-body"> 
+                    <h5 class="card-title"> 
+                        Password Updated Successfully
+                    </h5> 
+                    <p class="card-text"> 
+                        Don't be lazy try to remember your password from next
+                        time.
+                    </p> 
+                    <p class="card-text text-muted"> 
+                         Go to <a href="{% url 'login_view' %}">Login</a> &nbsp;?
+                    </p> 
+                </div> 
+            </div> 
+        </div> 
+    </div>
+</section>
+
+{% endblock content %}
