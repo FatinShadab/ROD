@@ -3,9 +3,9 @@ from django.contrib.auth.models import User
 
 class Camera(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='cameras')
-    cname = models.CharField(max_length=255)  # Name of the camera
-    cip = models.GenericIPAddressField(protocol='both', unpack_ipv4=False)  # IP address of the camera
-    cport = models.PositiveIntegerField()  # Port number
+    cname = models.CharField(max_length=255, null=False, blank=False, unique=True)  # Name of the camera
+    cip = models.GenericIPAddressField(protocol='both', unpack_ipv4=False, null=False, blank=False)  # IP address of the camera
+    cport = models.PositiveIntegerField(null=False, blank=False)  # Port number
     selected = models.BooleanField(default=False)  # If selected, others should be false
 
     def save(self, *args, **kwargs):
