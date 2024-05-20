@@ -2,42 +2,50 @@
 {% load static %}
 
 {% block title %}
-    R.O.D - CAM SETUP
+    R.O.D - CAM REGISTER
 {% endblock %}
 
 {% block content %}
-    <section class="pt-2">
+    <section class="pt-2 pb-0 mb-0">
         <hr class="text-light">
-        <div class="container-fluid">
+        <div class="container-fluid pb-0 mb-0">
             <div class="row">
                 <div class="col-md-6 col-sm-12 px-2">
                     <h4 class="text-light pb-1">Register Your IP Camera</h4>
-                    <form>
+                    {% if messages %}
+                        {% for message in messages %}
+                            {% if message.tags == 'error' %}
+                            <div class="float-left alert alert-danger alert-dismissible fade show" role="alert">
+                            {% else %}
+                            <div class="float-left alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {% endif %}
+                        
+                            {{ message | safe }} {{ message.tags }}
+                            <button type="button" class="close btn-close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true"></span>
+                            </button>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+                    <form method="post" id="camRegForm">
+                        {% csrf_token %}
                         <div class="form-row align-items-center">
                             <div class="col-auto">
                                 <div class="input-group mb-2">
                                     <div class="input-group-prepend">
                                     <div class="input-group-text">@</div>
                                     </div>
-                                    <input type="text" class="form-control" id="inlineFormInputGroup" placeholder="CAMERA NAME">
+                                    {{ form.cname }}
                                 </div>
                             </div>
                             <div class="col-auto">
                                 <div class="d-flex py-2 px-0 mx-0 gap-3" style="margin-left: 0%;">
-                                    <input type="text" class="form-control mb-2" id="inlineFormInput" placeholder="IP (1xx.1xx.x.1xx)">
-                                    <input type="text" class="form-control mb-2" id="inlineFormInput" placeholder="PORT (xxxx)">
-                                </div>
-                            </div>
-                            <div class="col-auto">
-                                <div class="form-check mb-2">
-                                <input class="form-check-input" type="checkbox" id="autoSizingCheck">
-                                <label class="form-check-label text-light" for="autoSizingCheck">
-                                    Select ?
-                                </label>
+                                    {{ form.cip }}
+                                    {{ form.cport }}
                                 </div>
                             </div>
                             <div class="col-auto text-end">
-                                <button type="submit" class="btn btn-primary mb-2">Register</button>
+                                <button type="submit" id="regBtn" class="btn btn-primary mb-2" disabled="true">Register</button>
                             </div>
                         </div>
                     </form>
@@ -56,41 +64,27 @@
                               </tr>
                             </thead>
                             <tbody>
-                              <tr>
-                                <td>Mark</td>
-                                <td>Otto</td>
-                                <td>@mdo</td>
-                                <td>Selected</td>
-                                <td><a href="">Test</a>/<a href="">Select</a></td>
-                              </tr>
-                              <tr>
-                                <td>Mark</td>
-                                <td>Otto</td>
-                                <td>@mdo</td>
-                                <td>Unselected</td>
-                                <td><a href="">Test</a>/<a href="">Select</a></td>
-                              </tr>
-                              <tr>
-                                <td>Mark</td>
-                                <td>Otto</td>
-                                <td>@mdo</td>
-                                <td>Unselected</td>
-                                <td><a href="">Test</a>/<a href="">Select</a></td>
-                              </tr>
-                              <tr>
-                                <td>Mark</td>
-                                <td>Otto</td>
-                                <td>@mdo</td>
-                                <td>Unselected</td>
-                                <td><a href="">Test</a>/<a href="">Select</a></td>
-                              </tr>
-                              <tr>
-                                <td>Mark</td>
-                                <td>Otto</td>
-                                <td>@mdo</td>
-                                <td>Unselected</td>
-                                <td><a href="">Test</a>/<a href="">Select</a></td>
-                              </tr>
+                                {% if cameras %}
+                                    {% for camera in cameras %}
+                                        <tr data-camera-name="{{ camera.cname }}" data-camera-ip="{{ camera.cip }}" data-camera-port="{{ camera.cport }}">
+                                            <td>{{ camera.cname }}</td>
+                                            <td>{{ camera.cip }}</td>
+                                            <td>{{ camera.cport }}</td>
+                                            <td>{{ camera.selected }}</td>
+                                            <td>
+                                                <a href="" class="test-link">Test</a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr data-camera-name="Camera 1" data-camera-ip="198.108.0.107" data-camera-port="8080">
+                                        <td>--</td>
+                                        <td>--</td>
+                                        <td>--</td>
+                                        <td>--</td>
+                                        <td>--</td>
+                                    </tr>
+                                {% endif %}
                             </tbody>
                         </table>
                     </div>
@@ -104,7 +98,7 @@
         <div class="row" style="width: 100%;">
             <div class="col-md-1"></div>
             <div class="col-md-6 col-sm-12 sm-mb-5">
-                <img src="{% static '\asset\images\no_camera.jpg' %}" class="img-fluid rounded px-5 border border-5 border-secondary" alt="camera feed">
+                <img src="{% static '\asset\images\no_camera.jpg' %}" id="video_stream" class="img-fluid rounded px-5 border border-5 border-secondary" alt="camera feed">
             </div>
             <div class="col-md-4 col-sm-12 pb-0">
                 <div class="card bg-secondary py-1">
@@ -114,10 +108,13 @@
                     <div class="card-body text-light justify-content-center">
                         <div class="row py-4">
                             <div class="col-md-6 col-sm-4 py-3">
-                                <p>Camera Name : Camera</p>
-                                <p>Camera IP : 198.108.0.107</p>
-                                <p>Camera Port : 8080</p>
-                                <p>Camera Status : Good</p>
+                                <p>Camera Name: <span id="camera-name"> -- </span></p>
+                                <p>Camera IP: <span id="camera-ip"> -- </span></p>
+                                <p>Camera Port: <span id="camera-port"> -- </span></p>
+                                <div class="text-center">
+                                    <button id="stopBtn" class="btn btn-danger mx-5 px-5 mt-2" disabled="true">Stop</button>
+                                </div>
+                                
                             </div>
                             <div class="col-md-6 col-sm-8 py-3">
                                 <img src="{% static '\asset\images\testing.gif' %}" alt="">
@@ -130,3 +127,75 @@
         </div>
     </section>
 {% endblock content %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get references to elements
+        const form = document.getElementById('camRegForm');
+        const regButton = document.getElementById('regBtn');
+        const testLinks = document.querySelectorAll('.test-link');
+        const stopBtn = document.getElementById('stopBtn');
+
+        // Function to start video stream
+        function startVideoStream(cameraData) {
+            var video = document.getElementById('video_stream');
+            var url = "{% url 'camera_test_view' cname='camera_name_placeholder' %}".replace('camera_name_placeholder', cameraData.name);
+            //var url = "http://192.168.0.101:8080/video"
+            // Set the source of the video element to your endpoint
+            video.src = url;
+            console.log(url);
+            video.onerror = function() {
+                console.log(video.error);
+                alert("Failed to load video stream. Please check if the camera is online and the IP address/port is correct.");
+            };
+
+            // Update the testing card with camera data
+            document.getElementById('camera-name').textContent = cameraData.name;
+            document.getElementById('camera-ip').textContent = cameraData.ip;
+            document.getElementById('camera-port').textContent = cameraData.port;
+        }
+
+        // Function to stop video stream
+        function stopVideoStream() {
+            var video = document.getElementById('video_stream');
+            video.src = "{% static '/asset/images/no_camera.jpg' %}";
+            document.getElementById('camera-name').textContent = "--";
+            document.getElementById('camera-ip').textContent = "--";
+            document.getElementById('camera-port').textContent = "--";
+        }
+
+        // Event listener for form input changes
+        form.addEventListener('input', function() {
+            const allFieldsFilled = Array.from(form.querySelectorAll('input[type="text"], input[type="number"]')).every(input => input.value.trim() !== '');
+            regButton.disabled = !allFieldsFilled;
+        });
+
+        // Event listener for test links
+        testLinks.forEach(function(testLink) {
+            testLink.addEventListener('click', function(event) {
+                // Prevent default link behavior
+                event.preventDefault();
+                // Get the data from the clicked row
+                var cameraRow = event.target.closest('tr');
+                var cameraData = {
+                    name: cameraRow.dataset.cameraName,
+                    ip: cameraRow.dataset.cameraIp,
+                    port: cameraRow.dataset.cameraPort
+                };
+                // Call the function to start the video stream with the camera data
+                startVideoStream(cameraData);
+                if (stopBtn) stopBtn.disabled = false; // Enable stop button if it exists
+            });
+        });
+
+        // Event listener for stop button
+        if (stopBtn) {
+            stopBtn.addEventListener('click', function(event) {
+                stopVideoStream();
+                stopBtn.disabled = true; // Disable stop button after stopping the stream
+            });
+        }
+    });
+</script>
+{% endblock extra_js %}
