@@ -102,12 +102,15 @@
             </div>
             <div class="col-md-4 col-sm-12 pb-0">
                 <div class="card bg-secondary py-1">
-                    <div class="card-header text-center text-light">
-                        IP CAMERA TESTING
+                    <div class="card-header text-light">
+                        <div class="d-flex" style="justify-content: space-between;">
+                            <p class="text-left">CAMERA TESTING</p>
+                            <a class="text-light" id="text-web-cam" href="!#"> Test WebCam ?</a>
+                        </div>
                     </div>
                     <div class="card-body text-light justify-content-center">
                         <div class="row py-4">
-                            <div class="col-md-6 col-sm-4 py-3">
+                            <div class="col-md-6 col-sm-4 py-2">
                                 <p>Camera Name: <span id="camera-name"> -- </span></p>
                                 <p>Camera IP: <span id="camera-ip"> -- </span></p>
                                 <p>Camera Port: <span id="camera-port"> -- </span></p>
@@ -136,11 +139,15 @@
         const regButton = document.getElementById('regBtn');
         const testLinks = document.querySelectorAll('.test-link');
         const stopBtn = document.getElementById('stopBtn');
+        const webCamTestLink = document.getElementById('text-web-cam');
+        var ipTestSrcLink = "{% url 'camera_test_view' cname='camera_name_placeholder' %}"
+        var webCamTestSrcLink = "{% url 'device_camera_test' camid='0' %}" // For testing
 
         // Function to start video stream
         function startVideoStream(cameraData) {
             var video = document.getElementById('video_stream');
-            var url = "{% url 'camera_test_view' cname='camera_name_placeholder' %}".replace('camera_name_placeholder', cameraData.name);
+            var url = cameraData.srcLink.replace('camera_name_placeholder', cameraData.name);
+            var url = cameraData.srcLink.replace('0', 0);
             //var url = "http://192.168.0.101:8080/video"
             // Set the source of the video element to your endpoint
             video.src = url;
@@ -171,6 +178,19 @@
             regButton.disabled = !allFieldsFilled;
         });
 
+        // For testing
+        webCamTestLink.addEventListener('click', function(event) {
+            event.preventDefault();
+
+            startVideoStream({
+                name: "Web Cam",
+                ip: "--",
+                port: "--",
+                srcLink: webCamTestSrcLink,
+            });
+            if (stopBtn) stopBtn.disabled = false;
+        });
+
         // Event listener for test links
         testLinks.forEach(function(testLink) {
             testLink.addEventListener('click', function(event) {
@@ -181,7 +201,8 @@
                 var cameraData = {
                     name: cameraRow.dataset.cameraName,
                     ip: cameraRow.dataset.cameraIp,
-                    port: cameraRow.dataset.cameraPort
+                    port: cameraRow.dataset.cameraPort,
+                    srcLink: ipTestSrcLink,
                 };
                 // Call the function to start the video stream with the camera data
                 startVideoStream(cameraData);
