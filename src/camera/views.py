@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 
 from .forms import CameraRegForm
 from .models import Camera
-from .cam import IPCamera
+from .cam import IPCamera, InDeviceCamera
 
 
 def gen(camera):
@@ -37,12 +37,31 @@ def camera_register(request):
     return render(request, "cam.html", {'form':reg_form, 'cameras': cameras})
 
 @login_required(login_url='login_view')
+def remvoe_camera_data(request, cname):
+    #ToDo
+    pass
+
+@login_required(login_url='login_view')
+def update_camera_data(request, cname):
+    #ToDo
+    pass
+
+@login_required(login_url='login_view')
 def camera_test(request, cname):
     testing_camera = get_object_or_404(Camera, cname=cname)
     video_source = f'http://{testing_camera.cip}:{testing_camera.cport}/video'
 
     try:
         camera = IPCamera(video_source)
+        frame = gen(camera)
+        return StreamingHttpResponse(frame, content_type='multipart/x-mixed-replace; boundary=frame')
+    except Exception as e:
+        return HttpResponse(f"Failed to load video stream: {e}", status=503)
+
+@login_required(login_url='login_view')
+def device_camera_test(request, camid):
+    try:
+        camera = InDeviceCamera(camid)
         frame = gen(camera)
         return StreamingHttpResponse(frame, content_type='multipart/x-mixed-replace; boundary=frame')
     except Exception as e:
