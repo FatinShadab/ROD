@@ -73,7 +73,10 @@ Through this project, I have learned:
     ```bash
     docker run -p 6379:6379 -d redis:5
     ```
-
+<p align="center">
+    <img src="https://github.com/FatinShadab/ROD/blob/main/ss/doker.png" alt="doker 1" width="45%">
+    <img src="https://github.com/FatinShadab/ROD/blob/main/ss/doker2.png" alt="doker 2" width="45%">
+</p>
 5. **Apply database migrations:**
     ```bash
     cd ./src/
@@ -125,6 +128,15 @@ The application includes a comprehensive user authentication system, ensuring se
 
 ## Conclusion
 This project combines several technologies to achieve real-time video processing and object detection. By integrating an IP camera with a Django backend, leveraging WebSocket communication, and using YOLO for object detection, we can build a powerful application that processes live video streams and updates the frontend in real-time.
+
+## Images
+<p align="center">
+    <img src="https://github.com/FatinShadab/ROD/blob/main/ss/home.png" alt="image 1" width="45%">
+    <img src="https://github.com/FatinShadab/ROD/blob/main/ss/signup.png" alt="image 2" width="45%">
+    <img src="https://github.com/FatinShadab/ROD/blob/main/ss/webcam1.png" alt="image 3" width="45%">
+    <img src="https://github.com/FatinShadab/ROD/blob/main/ss/webcam2.png" alt="doker 4" width="45%">
+    <img src="https://github.com/FatinShadab/ROD/blob/main/ss/iptesting.png" alt="image 5" width="45%">
+</p>
 
 ## License
 This project is under [MIT Licencse](https://github.com/FatinShadab/ROD/blob/main/LICENSE)
