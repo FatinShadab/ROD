@@ -1,7 +1,8 @@
 from django.contrib import messages
 from django.shortcuts import render, get_object_or_404
-from django.http import StreamingHttpResponse, HttpResponse
+from django.http import StreamingHttpResponse, HttpResponse, HttpResponseBadRequest
 from django.contrib.auth.decorators import login_required
+import json
 
 from .forms import CameraRegForm
 from .models import Camera
@@ -35,6 +36,14 @@ def camera_register(request):
     reg_form = CameraRegForm()
 
     return render(request, "cam.html", {'form':reg_form, 'cameras': cameras})
+
+def retrieve_camera(request):
+    if request.method == 'GET':
+        cameras = Camera.objects.filter(user=request.user)
+        camera_data = [camera.serialize() for camera in cameras]  # Serialize all cameras
+        return HttpResponse(json.dumps(camera_data), content_type='application/json')
+    else:
+        return HttpResponseBadRequest('GET request required for camera retrieval.')
 
 @login_required(login_url='login_view')
 def remvoe_camera_data(request, cname):

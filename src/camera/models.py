@@ -8,6 +8,13 @@ class Camera(models.Model):
     cport = models.PositiveIntegerField(null=False, blank=False)  # Port number
     selected = models.BooleanField(default=False)  # If selected, others should be false
 
+    def serialize(self):
+        return {
+            'name': self.cname,
+            'ip': self.cip,
+            'cport': self.cport,
+        }
+
     def get_url(self):
         return f"https://{self.cip}:{self.cport}"
 
