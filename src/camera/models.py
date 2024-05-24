@@ -8,6 +8,9 @@ class Camera(models.Model):
     cport = models.PositiveIntegerField(null=False, blank=False)  # Port number
     selected = models.BooleanField(default=False)  # If selected, others should be false
 
+    def get_url(self):
+        return f"https://{self.cip}:{self.cport}"
+
     def save(self, *args, **kwargs):
         if self.selected:
             # Ensure only one camera is selected per user
