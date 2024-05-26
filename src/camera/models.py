@@ -10,8 +10,8 @@ class Camera(models.Model):
 
     def serialize(self):
         return {
-            'name': self.cname,
-            'ip': self.cip,
+            'cname': self.cname,
+            'cip': self.cip,
             'cport': self.cport,
         }
 

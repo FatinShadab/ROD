@@ -19,7 +19,6 @@ class VideoConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data=None, bytes_data=None):
         if bytes_data:
-            print("Rcv !")
             np_data = np.frombuffer(bytes_data, np.uint8)
             frame = cv2.imdecode(np_data, cv2.IMREAD_COLOR)
             
