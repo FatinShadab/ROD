@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.shortcuts import render, get_object_or_404
-from django.http import StreamingHttpResponse, HttpResponse, HttpResponseBadRequest
+from django.http import StreamingHttpResponse, HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.contrib.auth.decorators import login_required
 import json
 
@@ -37,6 +37,23 @@ def camera_register(request):
 
     return render(request, "cam.html", {'form':reg_form, 'cameras': cameras})
 
+@login_required(login_url='login_view')
+def camera_register_asgi(request):
+    if request.method == "POST":
+        reg_form = CameraRegForm(request.POST)
+        if reg_form.is_valid():
+            cam_data = reg_form.save(commit=False)
+            cam_data.selected = False
+            cam_data.user = request.user
+            cam_data.save()
+            messages.success(request, "Camera registered successfully.")
+            return JsonResponse({'success': True, 'message': 'Camera registered successfully.'})
+        else:
+            return JsonResponse({'success': False, 'errors': reg_form.errors}, status=400)
+    else:
+        return JsonResponse({'success': False, 'message': 'Invalid request method.'}, status=405)
+
+@login_required(login_url='login_view')
 def retrieve_camera(request):
     if request.method == 'GET':
         cameras = Camera.objects.filter(user=request.user)
