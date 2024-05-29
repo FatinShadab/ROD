@@ -1,0 +1,487 @@
+{% extends 'main.html' %}
+
+{% load static %}
+
+{% block title %} 
+R.O.D - Monitor
+{% endblock title %}
+
+{% block content %}
+<section class="pt-2">
+    <hr class="text-light">
+    <div class="container-fluid pt-5 mt-5">
+        <div class="row">
+            <div class="col-md-1"></div>
+            <div class="col-md-6 col-sm-12">
+                <img id="video_stream" class="img-fluid rounded px-5 border border-5 border-secondary" hidden="true" style="image-rendering: optimizeSpeed;">
+                <img src="{% static 'asset/images/no_camera.jpg' %}" id="video_stream_placeholder" class="img-fluid rounded px-5 border border-5 border-secondary" alt="camera feed" style="image-rendering: optimizeSpeed;">
+            </div>
+            <div class="col-md-4 col-sm-12">
+                <div class="row">
+                    <div class="col-md-8 col-sm-12">
+                        <select id="cameraSelect" class="form-select mt-1 shadow" aria-label="Default select example">
+                            <option selected>Open this select menu</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 col-sm-12">
+                        <button id="startButton" type="button" class="btn btn-outline-primary mt-1 shadow">START</button>
+                    </div>
+                    <div class="col-md-2 col-sm-12">
+                        <button id="stopBtn" class="btn btn-danger mt-1" disabled="true">Stop</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-1"></div>
+        </div>
+    </div>
+</section>
+{% endblock content %}
+
+{% block extra_js %}
+<!-- <script>
+    document.addEventListener('DOMContentLoaded', function() {
+    const video_placeholder = document.getElementById('video_stream_placeholder');
+    const img = document.createElement('img');
+    var ipCamUrl = "http://ip:port/shot.jpg?"; // Replace with your IP camera URL
+    let camStream; let socket; let apiCall;
+
+    async function startWebcam() {
+        try {
+            document.getElementById('camera-name').textContent = "Device Cam";
+            camStream = await navigator.mediaDevices.getUserMedia({ video: true });
+
+            setupSocket();
+            setupVideo();
+            startSendingFrames();
+        } catch (error) {
+            console.error("Error accessing webcam: ", error);
+            alert("Failed to access webcam. Please check your browser settings and permissions.");
+        }
+    }
+
+    function setupSocket() {
+        socket = new WebSocket('ws://localhost:8000/camera/ws/video/');
+        socket.onopen = () => console.log("WebSocket connection opened");
+        socket.onerror = (error) => console.error("WebSocket error: ", error);
+        socket.onclose = () => console.log("WebSocket connection closed");
+        socket.onmessage = handleSocketMessage;
+    }
+
+    function setupVideo() {
+        video.srcObject = camStream;
+        video.hidden = false;
+        video_placeholder.hidden = true;
+        stopBtn.disabled = false;
+        webCamTestLink.disabled = true;
+    }
+
+    function handleSocketMessage(event) {
+        const arrayBuffer = event.data;
+        const blob = new Blob([arrayBuffer], { type: 'image/jpeg' });
+        video.src = URL.createObjectURL(blob);
+    }
+
+    function startSendingFrames() {
+        apiCall = setInterval(async () => {
+            try {
+                const frame = await grabFrame();
+                const canvas = document.createElement('canvas');
+                canvas.width = frame.width;
+                canvas.height = frame.height;
+                const context = canvas.getContext('2d');
+                context.drawImage(frame, 0, 0, frame.width, frame.height);
+                canvas.toBlob(sendBlob, 'image/jpeg');
+            } catch (error) {
+                console.error("Error capturing frame: ", error);
+            }
+        }, 50); // Send a frame every 50ms
+    }
+
+    async function grabFrame() {
+        const imageCapture = new ImageCapture(camStream.getVideoTracks()[0]);
+        return await imageCapture.grabFrame();
+    }
+
+    function sendBlob(blob) {
+        if (socket && socket.readyState === WebSocket.OPEN) {
+            console.log(blob);
+            socket.send(blob);
+        }
+    }
+
+    function stopCam() {
+        if (camStream) {
+            camStream.getTracks().forEach(track => track.stop());
+            camStream = null;
+            video.srcObject = null;
+            video.src = "!#";
+        }
+        if (socket) socket.close();
+        if (apiCall) clearInterval(apiCall);
+        video.hidden = true;
+
+        if (!video_placeholder.hidden) {
+            video_placeholder.src = "{% static '/asset/images/no_camera.jpg' %}";
+        }
+
+        video_placeholder.hidden = false;
+        stopBtn.disabled = true;
+        webCamTestLink.disabled = false;
+        document.getElementById('camera-name').textContent = "--";
+        document.getElementById('camera-ip').textContent = "--";
+        document.getElementById('camera-port').textContent = "--";
+    }
+
+    async function fetchImageAsBlob(url) {
+        const response = await fetch(url, { mode: 'cors' });
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return await response.blob();
+    }
+
+    async function startVideoStream(cameraData) {
+        stopBtn.disabled = false;
+        webCamTestLink.disabled = true;
+        ipCamUrl = ipCamUrl.replace("ip", cameraData.ip);
+        ipCamUrl = ipCamUrl.replace("port", cameraData.port);
+        img.src = ipCamUrl;
+        img.onerror = function() {
+            console.log(video.error);
+            alert("Failed to load video stream. Please check if the camera is online and the IP address/port is correct.");
+        };
+
+        socket = new WebSocket('ws://localhost:8000/camera/ws/video/');
+
+        socket.onopen = function(event) {
+            console.log('WebSocket is connected.');
+        };
+
+        socket.onmessage = function(event) {
+            const blob = new Blob([event.data], {type: 'image/jpeg'});
+            const url = URL.createObjectURL(blob);
+            video_placeholder.src = url;
+        };
+
+        socket.onerror = function(error) {
+            console.log('WebSocket Error: ', error);
+        };
+
+        socket.onclose = function(event) {
+            console.log('WebSocket is closed now.');
+            clearInterval(apiCall);
+        };
+
+        apiCall = setInterval(async () => {
+            try {
+                const blob = await fetchImageAsBlob(img.src);
+                sendBlob(blob);
+            } catch (error) {
+                console.error('Error fetching image as blob:', error);
+            }
+        }, 50);
+
+        // Update the testing card with camera data
+        document.getElementById('camera-name').textContent = cameraData.name;
+        document.getElementById('camera-ip').textContent = cameraData.ip;
+        document.getElementById('camera-port').textContent = cameraData.port;
+    }
+// });
+        const video = document.getElementById('video_stream');
+        const video_placeholder = document.getElementById('video_stream_placeholder');
+        const cameraSelect = document.getElementById('cameraSelect');
+        const startButton = document.getElementById('startButton');
+        const stopBtn = document.getElementById('stopBtn');
+        let camStream;
+        let socket;
+        let apiCall;
+
+        async function fetchImageAsBlob(url) {
+            const response = await fetch(url, { mode: 'cors' });
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return await response.blob();
+        }
+
+        function sendBlob(blob) {
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                socket.send(blob);
+            }
+        }
+
+        async function startVideoStream(cameraData) {
+            stopBtn.disabled = false;
+            cameraSelect.disabled = true;
+            startButton.disabled = true;
+
+            const ipCamUrl = `http://${cameraData.cip}:${cameraData.cport}/shot.jpg?`;
+            const img = new Image();
+            img.src = ipCamUrl;
+            img.onerror = function() {
+                alert("Failed to load video stream. Please check if the camera is online and the IP address/port is correct.");
+            };
+
+            socket = new WebSocket('ws://localhost:8000/camera/ws/video/');
+
+            socket.onopen = function(event) {
+                console.log('WebSocket is connected.');
+            };
+
+            socket.onmessage = function(event) {
+                const blob = new Blob([event.data], { type: 'image/jpeg' });
+                const url = URL.createObjectURL(blob);
+                video.src = url;
+            };
+
+            socket.onerror = function(error) {
+                console.log('WebSocket Error: ', error);
+            };
+
+            socket.onclose = function(event) {
+                console.log('WebSocket is closed now.');
+                clearInterval(apiCall);
+            };
+
+            apiCall = setInterval(async () => {
+                try {
+                    const blob = await fetchImageAsBlob(img.src);
+                    sendBlob(blob);
+                } catch (error) {
+                    console.error('Error fetching image as blob:', error);
+                }
+            }, 50);
+
+            video.hidden = false;
+            video_placeholder.hidden = true;
+
+            document.getElementById('camera-name').textContent = cameraData.cname;
+            document.getElementById('camera-ip').textContent = cameraData.cip;
+            document.getElementById('camera-port').textContent = cameraData.cport;
+        }
+
+        function stopCam() {
+            if (socket) socket.close();
+            if (apiCall) clearInterval(apiCall);
+
+            video.hidden = true;
+            video.src = "";
+            video_placeholder.hidden = false;
+            stopBtn.disabled = true;
+            cameraSelect.disabled = false;
+            startButton.disabled = false;
+
+            document.getElementById('camera-name').textContent = "--";
+            document.getElementById('camera-ip').textContent = "--";
+            document.getElementById('camera-port').textContent = "--";
+        }
+
+        startButton.addEventListener('click', function() {
+            const selectedCameraId = cameraSelect.value;
+            if (selectedCameraId) {
+                fetch(`/start_stream/${selectedCameraId}/`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            startVideoStream(data.camera);
+                        } else {
+                            alert('Failed to start stream.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred.');
+                    });
+            } else {
+                alert('Please select a camera first.');
+            }
+        });
+
+        stopBtn.addEventListener('click', function() {
+            stopCam();
+        });
+    });
+</script> -->
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const video = document.getElementById('video_stream');
+    const video_placeholder = document.getElementById('video_stream_placeholder');
+    const img = document.createElement('img');
+    const cameraSelect = document.getElementById('cameraSelect');
+    const startBtn = document.getElementById('startButton');
+    const stopBtn = document.getElementById('stopBtn');
+    var ipCamUrl = "http://ip:port/shot.jpg?"; // Replace with your IP camera URL
+    let camStream; let socket; let apiCall;
+
+    async function startWebcam() {
+        try {
+            document.getElementById('camera-name').textContent = "Device Cam";
+            camStream = await navigator.mediaDevices.getUserMedia({ video: true });
+
+            setupSocket();
+            setupVideo();
+            startSendingFrames();
+        } catch (error) {
+            console.error("Error accessing webcam: ", error);
+            alert("Failed to access webcam. Please check your browser settings and permissions.");
+        }
+    }
+
+    function setupSocket() {
+        socket = new WebSocket('ws://localhost:8000/camera/ws/video/');
+        socket.onopen = () => console.log("WebSocket connection opened");
+        socket.onerror = (error) => console.error("WebSocket error: ", error);
+        socket.onclose = () => console.log("WebSocket connection closed");
+        socket.onmessage = handleSocketMessage;
+    }
+
+    function setupVideo() {
+        video.srcObject = camStream;
+        video.hidden = false;
+        video_placeholder.hidden = true;
+        stopBtn.disabled = false;
+        webCamTestLink.disabled = true;
+    }
+
+    function handleSocketMessage(event) {
+        const arrayBuffer = event.data;
+        const blob = new Blob([arrayBuffer], { type: 'image/jpeg' });
+        video.src = URL.createObjectURL(blob);
+    }
+
+    function startSendingFrames() {
+        apiCall = setInterval(async () => {
+            try {
+                const frame = await grabFrame();
+                const canvas = document.createElement('canvas');
+                canvas.width = frame.width;
+                canvas.height = frame.height;
+                const context = canvas.getContext('2d');
+                context.drawImage(frame, 0, 0, frame.width, frame.height);
+                canvas.toBlob(sendBlob, 'image/jpeg');
+            } catch (error) {
+                console.error("Error capturing frame: ", error);
+            }
+        }, 50); // Send a frame every 50ms
+    }
+
+    async function grabFrame() {
+        const imageCapture = new ImageCapture(camStream.getVideoTracks()[0]);
+        return await imageCapture.grabFrame();
+    }
+
+    function sendBlob(blob) {
+        if (socket && socket.readyState === WebSocket.OPEN) {
+            console.log(blob);
+            socket.send(blob);
+        }
+    }
+
+    function stopCam() {
+        if (camStream) {
+            camStream.getTracks().forEach(track => track.stop());
+            camStream = null;
+            video.srcObject = null;
+            video.src = "!#";
+        }
+        if (socket) socket.close();
+        if (apiCall) clearInterval(apiCall);
+        video.hidden = true;
+
+        if (!video_placeholder.hidden) {
+            console.log("here");
+            video_placeholder.src = "{% static '/asset/images/no_camera.jpg' %}";
+        }
+
+        video_placeholder.hidden = false;
+        stopBtn.disabled = true;
+    }
+
+    async function fetchImageAsBlob(url) {
+        const response = await fetch(url, { mode: 'cors' });
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return await response.blob();
+    }
+
+    async function startVideoStream() {
+        console.log(cameraSelect.value);
+        stopBtn.disabled = false;
+        img.src = cameraSelect.value;
+        img.onerror = function() {
+            console.log(video.error);
+            alert("Failed to load video stream. Please check if the camera is online and the IP address/port is correct.");
+        };
+
+        socket = new WebSocket('ws://localhost:8000/camera/ws/video/');
+
+        socket.onopen = function(event) {
+            console.log('WebSocket is connected.');
+        };
+
+        socket.onmessage = function(event) {
+            const blob = new Blob([event.data], {type: 'image/jpeg'});
+            const url = URL.createObjectURL(blob);
+            video_placeholder.src = url;
+        };
+
+        socket.onerror = function(error) {
+            console.log('WebSocket Error: ', error);
+        };
+
+        socket.onclose = function(event) {
+            console.log('WebSocket is closed now.');
+            clearInterval(apiCall);
+        };
+
+        apiCall = setInterval(async () => {
+            try {
+                const blob = await fetchImageAsBlob(img.src);
+                sendBlob(blob);
+            } catch (error) {
+                console.error('Error fetching image as blob:', error);
+            }
+        }, 50);
+    }
+
+    // Function to fetch camera data from the server
+    async function fetchCameras() {
+        try {
+            const response = await fetch("{% url 'retrieve_camera_view' %}");
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const cameraData = await response.json();
+            populateCameraSelect(cameraData);
+        } catch (error) {
+            console.error('Error fetching camera data:', error);
+        }
+    }
+
+    function populateCameraSelect(cameras) {
+        // Clear any existing options
+        cameraSelect.innerHTML = '<option selected>Open this select menu</option>';
+        
+        // Populate the select element with camera options
+        cameras.forEach(camera => {
+            const option = document.createElement('option');
+            option.value = ipCamUrl.replace("port", camera.cport).replace("ip", camera.cip);
+            option.textContent = `${camera.cname}: (${camera.cip}:${camera.cport})`;
+            cameraSelect.appendChild(option);
+        });
+    }
+
+    startBtn.addEventListener('click', function(event){
+        startVideoStream();
+    });
+
+    stopBtn.addEventListener('click', function(event) {
+        stopCam();
+    });
+
+    fetchCameras();
+});
+</script>
+{% endblock extra_js %}
