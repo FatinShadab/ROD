@@ -11,7 +11,8 @@ import os
 from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
 from django.core.asgi import get_asgi_application
-from camera import routing
+from camera import routing as camera_routing
+from odcm import routing as odcm_routing
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
 # Initialize Django ASGI application early to ensure the AppRegistry
@@ -23,7 +24,8 @@ application = ProtocolTypeRouter({
     # Just HTTP for now. (We can add other protocols later.)
     'websocket': AuthMiddlewareStack(
         URLRouter(
-            routing.websocket_urlpatterns
+            camera_routing.websocket_urlpatterns +
+            odcm_routing.websocket_urlpatterns
         )
     ),
 })
