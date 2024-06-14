@@ -1,10 +1,7 @@
 # consumers.py
 import cv2
 import numpy as np
-import base64
 from channels.generic.websocket import AsyncWebsocketConsumer
-from io import BytesIO
-from PIL import Image
 from django.contrib.auth.models import User
 
 class VideoConsumer(AsyncWebsocketConsumer):
